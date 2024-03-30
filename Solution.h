@@ -131,8 +131,8 @@ public:
 
 private:
 	static Solution* sol;
-	Shader phongShader;
-	int phongShaderProgId;
+	Shader waterShader;
+	int waterShaderProgId;
 	Water waterfloor;
 
 	
@@ -154,7 +154,7 @@ private:
 	int plotCorrect;	// plot correctly with normal matrix
 
 	int setLights(Vector3f pointLightPos, Vector3f spotLightPos, Vector3f spotLightLookAtPoint);
-	void render();
+	int render();
 	void keyboard(unsigned char key, int x, int y);
 
 	void passiveMouse(int x, int y);

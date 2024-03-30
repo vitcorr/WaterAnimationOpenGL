@@ -46,9 +46,9 @@ public:
     Water();
     ~Water();
 
-    void initGeom();
+    void initGeom(Vertices& vtx, Indices& ind);
     int render(Matrix4f parentWorldMat);
-
+    int render(Shader shader);
 
 
 private:

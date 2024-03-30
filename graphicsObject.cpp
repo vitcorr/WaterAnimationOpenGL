@@ -129,17 +129,17 @@ int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, col));
 
 	//set the vertex normal
-	location = glGetAttribLocation(shaderProgId, "vtxNormal");
+	//location = glGetAttribLocation(shaderProgId, "vtxNormal");
 
-	if (location == -1) {
-		rc = -3;
-		goto err;
-	}
+	//if (location == -1) {
+	//	rc = -3;
+	//	goto err;
+	//}
 
-	// enable the location
-	glEnableVertexAttribArray(location);
-	// inform openfl abouit the attribute address
-	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	//// enable the location
+	//glEnableVertexAttribArray(location);
+	//// inform openfl abouit the attribute address
+	//glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
 	//create index buffer
 	// get a handle

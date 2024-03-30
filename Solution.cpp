@@ -234,20 +234,35 @@ int Solution::initSolution()
 	// initialize the geomegtry and transformation of the floor object
 	// world position and scale
 	//init the geometry
-	waterfloor.initGeom();
+	waterfloor.initGeom(vtx, ind);
 	//model to model
+	
+
+	// create the water shader object
+	//shader use
+	rc = waterShader.createShaderProgram("waterShader.vs", "waterShader.fs");
+	if (rc != 0) {
+		fprintf(stderr, "Error in generating shader (solution)\n");
+		rc = -1;
+		goto err;
+	}
+	checkGLError();
+
+	waterShaderProgId = waterShader.getProgId();
+
+	// create the phongSphereVAO  using geometryObject createVAO(shaderProgId,...)
+	waterfloor.createVAO(waterShader, vtx, ind);
+	
 	waterfloor.setModelScale(15, 15, 5);
-	waterfloor.setModelRotations(0, -45, 0);
+	waterfloor.setWorldRotations(0, -45, 0);
 	//model to world
 	waterfloor.setWorldPosition(Vector3f(10, 20, 0));
 
-	// create the house by invoking the house create function
-	//waterfloor.create();
-
-
+	checkGLError(); 
 	// set the camera initial position
 	cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
 
+err:
 	return 0;
 }
 
@@ -266,9 +281,58 @@ void Solution::setSolution(Solution* _sol)
 // render function.  
 
 
-void Solution::render()
+int Solution::render()
 {
+	//shader use code
+	
+	Vector3f viewerPosition;
+	Vector3f lookAtPoint;
+	Vector3f upVector;;
+	Matrix4f viewMat, projMat;
+	int location = 0;
 
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//if (!plotWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+
+	// use the phong's shader program shader
+	glUseProgram(waterShaderProgId);
+
+	// get the camera matrix from the camera
+	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
+
+	// transfer the martix to the phongShader
+	// get the location of the matrix
+
+	waterShader.copyMatrixToShader(viewMat, "view");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+
+
+	// set the projection matrix
+	projMat = cam.getProjectionMatrix(NULL);
+	// transfer the martix to the phongShader
+	// get the location of the matrix
+	waterShader.copyMatrixToShader(projMat, "projection");
+
+	assert(location != -1);
+	if (location == -1) return (-1);
+	//printf("%s", "break2ffff \n");
+
+	// render the objects
+	//waterfloor.render(Matrix4f::identity());
+	waterfloor.render(waterShader);
+	//house.render(Matrix4f::identity());
+	glutSwapBuffers();
+	return 0; 
+
+	//My old working render
+	/*
 	Vector3f viewerPosition;
 	Vector3f lookAtPoint;
 	Vector3f upVector;;
@@ -280,6 +344,7 @@ void Solution::render()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glDisable(GL_CULL_FACE);
+
 
 	glViewport(0, 0, (GLsizei)winWidth, (GLsizei)winHeight);
 
@@ -307,7 +372,7 @@ void Solution::render()
 	waterfloor.render(Matrix4f::identity());
 	//house.render(Matrix4f::identity());
 	glutSwapBuffers();
-	/*return 0;*/
+	return 0; */
 }
 
 

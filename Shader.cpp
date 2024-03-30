@@ -56,7 +56,7 @@ Shader::~Shader(void)
 
 
 /******************************************************************/
-char* Shader::readCode(char* fileName)
+char* Shader::readCode(const char* fileName)
 {
 	char* shaderCode = NULL;
 	int codeLength = 0;
@@ -107,7 +107,7 @@ return:
 
 */
 
-int Shader::createShaderObj(char* fileName, int shaderType, GLuint* shaderid)
+int Shader::createShaderObj(const char* fileName, int shaderType, GLuint* shaderid)
 {
 	char* code = NULL;
 	int rc = 0;
@@ -242,7 +242,7 @@ return:
 */
 
 
-int Shader::createShaderProgram(char* vsFileName, char* fsFileName)
+int Shader::createShaderProgram(const char* vsFileName, const char* fsFileName)
 {
 
 	int rc = 0;
@@ -381,7 +381,6 @@ This is a helper function since this operation is used quite often
 */
 int Shader::copyMatrixToShader(Matrix4f matrix, const char* name) {
 	int location;
-
 	// get the location of the matrix
 	location = glGetUniformLocation(getProgId(), name);
 

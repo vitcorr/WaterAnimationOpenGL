@@ -60,7 +60,7 @@ numLat - number of latituudes.  Note that the number of latitudes is defined onl
 
 */
 
-void Water:: initGeom(){
+void Water:: initGeom(Vertices& vtx, Indices& ind){
 	
 	m_vertices.resize(4);
 	// initial each vertex with a positin and colour
@@ -83,7 +83,15 @@ void Water:: initGeom(){
 
 	m_indices.assign(std::begin(indices), std::end(indices));
 
+	//transfer
+	ind.assign(std::begin(indices), std::end(indices));
+	vtx.assign(std::begin(m_vertices), std::end(m_vertices));
 
+	for (int i = 0; i < vtx.size(); i++) {
+		printf("x=%f, " "y=%f " "z = %f \n", vtx[i].pos.x, vtx[i].pos.y, vtx[i].pos.z);
+		printf("%d \n", ind[i]);
+
+	}
 
 }
 
@@ -127,3 +135,53 @@ int Water::render(Matrix4f parentWorldMat)
     return(0);
 }
 
+int Water::render(Shader shader)
+{
+	Matrix4f rotMat;  // rotation matrix;
+	Matrix4f scaleMat; // scaling matrix;
+	Matrix4f transMat;	// translation matrix
+	Matrix4f modelMat;	// final model matrix
+
+	int shaderProgId = shader.getProgId();
+
+	// set the transformation matrix - the model transfomration
+	modelMat = Matrix4f::identity();
+
+	// set the scaling - this is model space to model space transformation
+	scaleMat = Matrix4f::scale(scale.x, scale.y, scale.z);
+	modelMat = scaleMat * modelMat;
+
+	// set the rotation  - this is model space to model space transformation 
+	rotMat = Matrix4f::rotateRollPitchYaw(worldRollAngle, worldPitchAngle, worldYawAngle, 0);
+
+	// note that we always multiply the new matrix on the left
+	modelMat = rotMat * modelMat;
+
+	// set the translation - this is model space to world space transformation
+	transMat = Matrix4f::translation(worldPosition.x, worldPosition.y, worldPosition.z);
+	modelMat = transMat * modelMat;
+
+	// move matrix to shader
+	shader.copyMatrixToShader(modelMat, "model");
+
+	////load materials
+	//materials.ambientMaterial = Vector3f(0.2, 0.2, 0.2);
+	//materials.diffuseMaterial = Vector3f(0.75, 0.75, 0.75);
+	//materials.specularMaterial = Vector3f(0.8, 0.8, 0.8);
+	//materials.ambientMaterial = Vector3f(0.2, 0.2, 0.2);
+
+	// load the object materials
+	//loadMaterials(shader);
+
+	// bind the vao
+	glBindVertexArray(vao);
+
+	// draw elements using indices
+
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
+
+	// unbind the vao
+	glBindVertexArray(0);
+
+	return 0;
+}
