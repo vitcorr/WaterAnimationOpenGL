@@ -18,7 +18,7 @@ public:
 	Texture();
 	~Texture();
 
-	void loadTextures(char* imageFileName, GLuint texTarget);
+	void loadTextures(const char* imageFileName, GLuint texTarget);
 	void bindToTextureUnit(int textureUnit);
 	GLuint setTextureSampler(Shader shader, char* sampleName, GLuint samplerId);
 

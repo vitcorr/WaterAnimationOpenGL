@@ -234,7 +234,7 @@ int Solution::initSolution()
 	// initialize the geomegtry and transformation of the floor object
 	// world position and scale
 	//init the geometry
-	waterfloor.createSurface(10, 10, vtx, ind);
+	waterfloor.createSurface(10, 10, 0, 1, 0, 1, vtx, ind);
 	//model to model
 	
 
@@ -263,6 +263,8 @@ int Solution::initSolution()
 	//cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
 	cam.setCamera(Vector3f(0, 500, 1), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
+	//load textures
+	watertexture.loadTextures("water_pic.jpg", GL_TEXTURE_2D);
 
 err:
 	return 0;

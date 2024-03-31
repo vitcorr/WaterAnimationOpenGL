@@ -29,7 +29,7 @@ Texture::~Texture()
 //  load a texture
 
 
-void Texture::loadTextures(char* imageFileName, GLuint texTarget)
+void Texture::loadTextures(const char* imageFileName, GLuint texTarget)
 {
 
 	int width, height;
