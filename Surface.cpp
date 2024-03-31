@@ -34,7 +34,7 @@
 /*********************************************************************************/
 // INCLUDE FILES
 
-#include "Water.h"
+#include "Surface.h"
 #include <iostream>
 using namespace std;
 
@@ -52,12 +52,12 @@ using namespace std;
 
 /*********************************************************************************/
 
-Water::Water()
+Surface::Surface()
 {
 }
 
 
-Water::~Water()
+Surface::~Surface()
 {
 }
 
@@ -76,7 +76,7 @@ numCols - number of columns in the surface
 
 */
 
-int Water::createSurface(int numRows, int numCols, Vertices& vtx, Indices& ind)
+int Surface::createSurface(int numRows, int numCols, Vertices& vtx, Indices& ind)
 
 {
 	int i, j, k;
@@ -116,9 +116,9 @@ int Water::createSurface(int numRows, int numCols, Vertices& vtx, Indices& ind)
 			pos.w = 1.0;
 
 			// add colour 
-			/*colour.x = j * deltaX / 2.0f;
-			colour.z = i * deltaZ / 2.0f;*/
-			colour = Vector4f(0, 0, 1, 1);
+			colour.x = j * deltaX / 2.0f;
+			colour.z = i * deltaZ / 2.0f;
+			//colour = Vector4f(1, 0, 0, 1);
 
 			vtx.push_back(Vertex(pos, colour));
 			//		vtx[k] = Vertex(pos, colour);
@@ -171,7 +171,7 @@ v0, v1 - range of texture v coordinates
 
 */
 
-int Water::createSurface(int numRows, int numCols, float u0, float u1, float v0, float v1, Vertices& vtx, Indices& ind)
+int Surface::createSurface(int numRows, int numCols, float u0, float u1, float v0, float v1, Vertices& vtx, Indices& ind)
 
 {
 	int i, j;
@@ -248,7 +248,7 @@ int Water::createSurface(int numRows, int numCols, float u0, float u1, float v0,
 /*******************************************************************************/
 // creates two triangoles indices of quad at position row, col
 
-int Water::createQuad(int NumRows, int numCols, int row, int col, Indices& ind)
+int Surface::createQuad(int NumRows, int numCols, int row, int col, Indices& ind)
 {
 	// fill indices for the quad
 	// change by making a quad function
@@ -273,7 +273,7 @@ int Water::createQuad(int NumRows, int numCols, int row, int col, Indices& ind)
 /*********************************************************************************/
 
 
-int Water::render(Shader shader)
+int Surface::render(Shader shader)
 {
 	Matrix4f rotMat;  // rotation matrix;
 	Matrix4f scaleMat; // scaling matrix;
@@ -288,13 +288,13 @@ int Water::render(Shader shader)
 	modelMat = scaleMat * modelMat;
 
 	// set the rotation  - this is model space to model space transformation 
-	rotMat = Matrix4f::rotateRollPitchYaw(worldRollAngle, worldPitchAngle, worldYawAngle, 0);
+	rotMat = Matrix4f::rotateRollPitchYaw(rollAngle, pitchAngle, yawAngle, 1);
 	// note that we always multiply the new matrix on the left
 	modelMat = rotMat * modelMat;
 
 
 	// set the translation - this is model space to world space transformation
-	transMat = Matrix4f::translation(worldPosition.x, worldPosition.y, worldPosition.z);
+	transMat = Matrix4f::translation(position);
 	modelMat = transMat * modelMat;
 
 	// move matrix to shader

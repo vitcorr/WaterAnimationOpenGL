@@ -47,6 +47,7 @@
 #include "Shader.h"
 #include "Water.h"
 #include "camera.h"
+#include "Texture.h"
 #include "GL/nuss_math.h"
 
 
@@ -134,7 +135,7 @@ private:
 	Shader waterShader;
 	int waterShaderProgId;
 	Water waterfloor;
-
+	Texture watertexture;
 	
 
 	Camera cam;

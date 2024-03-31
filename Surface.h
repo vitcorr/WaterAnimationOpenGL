@@ -37,18 +37,18 @@ Author: Doron Nussbaum (C) 2015 All Rights Reserved.
 
 
 
-#ifndef WATER_HEADER
-#define WATER_HEADER 1
+#ifndef SURFACE_HEADER
+#define SURFACE_HEADER 1
 
 
 #include "graphicsObject.h"
 
 
-class Water : public GraphicsObject
+class Surface : public GraphicsObject
 {
 public:
-	Water();
-	~Water();
+	Surface();
+	~Surface();
 	static int createSurface(int numRows, int numCols, Vertices& vtx, Indices& ind);
 	static int createSurface(int numRows, int numCols, float u0, float u1, float v0, float v1, Vertices& vtx, Indices& ind);
 	int render(Shader shader);

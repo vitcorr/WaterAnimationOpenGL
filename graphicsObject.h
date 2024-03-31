@@ -66,33 +66,29 @@ typedef struct materials {
 
 
 struct Vertex {
-	Vertex() {
-		pos = Vector4f(0, 0, 0, 1);
-		col = Vector4f(0, 0, 0, 0);
-		normal = Vector3f(0, 1, 0);
-	}
+	Vertex() {}
 	Vertex(const Vector4f& _pos);
 	Vertex(const Vector4f _pos, const Vector4f _col) {
-		pos = _pos;
-		col = _col;
-		normal = Vector3f(0, 1, 0);
-		//memcpy(pos, (void*)&_pos, sizeof(pos));
-		//memcpy(col, (void*)&_col, sizeof(col));
+		memcpy(pos, (void*)&_pos, sizeof(pos));
+		memcpy(col, (void*)&_col, sizeof(col));
 	}
-
 	Vertex(const Vector4f _pos, const Vector3f _normal, const Vector4f _col) {
-		pos = _pos;
-		col = _col;
-		normal = _normal;
-
+		memcpy(pos, (void*)&_pos, sizeof(pos));
+		memcpy(normal, (void*)&_normal, sizeof(normal));
+		memcpy(col, (void*)&_col, sizeof(col));
 	}
 
+	Vertex(const Vector4f _pos, const Vector3f _normal, const Vector4f _col, const Vector2f _texCoord) {
+		memcpy(pos, (void*)&_pos, sizeof(pos));
+		memcpy(normal, (void*)&_normal, sizeof(normal));
+		memcpy(col, (void*)&_col, sizeof(col));
+		memcpy(texCoord, (void*)&_texCoord, sizeof(texCoord));
+	}
 
-	Vector4f pos;
-	Vector3f normal;
-	Vector4f col;
-	//float pos[4];
-	//float col[4];
+	float pos[4];
+	float normal[3];
+	float col[4];
+	float texCoord[2];
 };
 
 typedef struct Vertex Vertex;

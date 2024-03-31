@@ -234,7 +234,7 @@ int Solution::initSolution()
 	// initialize the geomegtry and transformation of the floor object
 	// world position and scale
 	//init the geometry
-	waterfloor.initGeom(vtx, ind);
+	waterfloor.createSurface(10, 10, vtx, ind);
 	//model to model
 	
 
@@ -253,14 +253,16 @@ int Solution::initSolution()
 	// create the phongSphereVAO  using geometryObject createVAO(shaderProgId,...)
 	waterfloor.createVAO(waterShader, vtx, ind);
 	
-	waterfloor.setModelScale(15, 15, 5);
-	waterfloor.setWorldRotations(0, -45, 0);
+	waterfloor.setModelScale(150, 1, 150);
+	waterfloor.setWorldRotations(0, 90, 0);
 	//model to world
-	waterfloor.setWorldPosition(Vector3f(10, 20, 0));
+	waterfloor.setWorldPosition(Vector3f(0, 0, 0));
 
 	checkGLError(); 
 	// set the camera initial position
-	cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
+	//cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
+	cam.setCamera(Vector3f(0, 500, 1), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+
 
 err:
 	return 0;
@@ -293,8 +295,8 @@ int Solution::render()
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//if (!plotWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (!plotWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
 

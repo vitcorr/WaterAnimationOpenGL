@@ -147,6 +147,8 @@
     <ClCompile Include="graphicsObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Solution.cpp" />
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +156,8 @@
     <ClInclude Include="graphicsObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Solution.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Water.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
