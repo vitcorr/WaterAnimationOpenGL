@@ -20,7 +20,7 @@ public:
 
 	void loadTextures(const char* imageFileName, GLuint texTarget);
 	void bindToTextureUnit(int textureUnit);
-	GLuint setTextureSampler(Shader shader, char* sampleName, GLuint samplerId);
+	GLuint setTextureSampler(Shader shader, const char* sampleName, GLuint samplerId);
 
 	GLuint getTexId();
 };
