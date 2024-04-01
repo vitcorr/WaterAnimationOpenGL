@@ -440,6 +440,7 @@ void Solution::passiveMouse(int x, int y)
 
 {
 	int winid = glutGetWindow();
+	cam.changeAbsPosition(x/2, y/2, 0);
 	//std::cout << "Passive Mouse winId=" << winid << "(" << x << " , " << y << ")" << std::endl;
 }
 
