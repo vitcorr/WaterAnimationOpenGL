@@ -300,6 +300,10 @@ int Water::render(Shader shader)
 	// move matrix to shader
 	shader.copyMatrixToShader(modelMat, "model");
 
+	
+	// bind the texture to it using the texId
+	//glBindTexture(GL_TEXTURE_2D, texId);
+	// keep the texture unit internally
 
 	// bind the vao
 	glBindVertexArray(vao);

@@ -81,6 +81,8 @@ int GraphicsObject::createVAO(Shader shader)
 int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 {
 	int rc = 0;
+	Vertex v;
+
 
 	GLint location = 0;		// location of the attributes in the shader;
 
@@ -114,32 +116,51 @@ int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 	// inform openfl abouit the attribute address
 	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 
-
+	/*
 	//set the vertex color - repeat for vertex colour 
 	location = glGetAttribLocation(shaderProgId, "vtxCol");
+	printf("col-lo: %d\n", location);
 
 	if (location == -1) {
 		rc = -2;
-		goto err;
+		goto err;		
 	}
 
 	// enable the location
 	glEnableVertexAttribArray(location);
 	// inform openfl abouit the attribute address
-	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, col));
+	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, col)); */
 
-	//set the vertex normal
-	//location = glGetAttribLocation(shaderProgId, "vtxNormal");
+	/*//set the vertex normal
+	location = glGetAttribLocation(shaderProgId, "vtxNormal");
 
-	//if (location == -1) {
-	//	rc = -3;
-	//	goto err;
-	//}
+	if (location == -1) {
+		rc = -3;
+		//goto err; ------THIS BREAKS THE CODE BC THERES NOT NORMAL YET COME BACK TO REVISE!!!!!!!!!!!!!!!!!!
+	}
 
-	//// enable the location
-	//glEnableVertexAttribArray(location);
-	//// inform openfl abouit the attribute address
-	//glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	// enable the location
+	glEnableVertexAttribArray(location);
+	// inform openfl abouit the attribute address
+	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));*/
+
+	//set the vertex tex coordinates
+	location = glGetAttribLocation(shaderProgId, "vtxCoord");
+	printf("lo: %d\n", location);
+
+	if (location == -1) {
+		rc = -3;
+		//DN	goto err;
+	}
+	else {
+		glEnableVertexAttribArray(location);
+		int relAddress = (char*)v.texCoord - (char*)&v;
+		printf("reladres: %d\n", relAddress);
+		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)relAddress);
+
+		//glEnableVertexAttribArray(location);
+		//glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+	}
 
 	//create index buffer
 	// get a handle

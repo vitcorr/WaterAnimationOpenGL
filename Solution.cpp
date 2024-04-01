@@ -228,18 +228,17 @@ int Solution::initSolution()
 	int rc;
 	Vertices vtx;
 	Indices ind;
+	factor = 1;
 
-
-	// Add Code
-	// initialize the geomegtry and transformation of the floor object
-	// world position and scale
-	//init the geometry
-	waterfloor.createSurface(10, 10, vtx, ind);
+	Vertices floorvtx;
+	Indices floorind;
+	
+	waterfloor.createSurface(50, 50, 0, 1, 0, 1, vtx, ind);
+	floor.createSurface(10, 10, 0, 5, 0, 10, floorvtx, floorind);
 	//model to model
 	
 
 	// create the water shader object
-	//shader use
 	rc = waterShader.createShaderProgram("waterShader.vs", "waterShader.fs");
 	if (rc != 0) {
 		fprintf(stderr, "Error in generating shader (solution)\n");
@@ -250,19 +249,41 @@ int Solution::initSolution()
 
 	waterShaderProgId = waterShader.getProgId();
 
-	// create the phongSphereVAO  using geometryObject createVAO(shaderProgId,...)
+	// create the water VAO  using geometryObject createVAO(shaderProgId,...)
 	waterfloor.createVAO(waterShader, vtx, ind);
-	
 	waterfloor.setModelScale(150, 1, 150);
-	waterfloor.setWorldRotations(0, 90, 0);
+	waterfloor.setWorldRotations(0, 90, 45);
+	waterfloor.setWorldPosition(Vector3f(0, 0, -10));//model to world
+
+	// create the FLOOR shader object
+	rc = floorShader.createShaderProgram("floorShader.vs", "floorShader.fs");
+	if (rc != 0) {
+		fprintf(stderr, "Error in generating shader (solution)\n");
+		rc = -1;
+		goto err;
+	}
+	checkGLError();
+	floorShaderProgId = floorShader.getProgId();
+
+	// create the floor VAO  using geometryObject createVAO(shaderProgId,...)
+	floor.createVAO(floorShader, floorvtx, floorind);
+	floor.setModelScale(300, 1, 300);
+	floor.setWorldRotations(0, 90, 45);
 	//model to world
-	waterfloor.setWorldPosition(Vector3f(0, 0, 0));
+	floor.setWorldPosition(Vector3f(0, 0, 0));
 
 	checkGLError(); 
 	// set the camera initial position
 	//cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
 	cam.setCamera(Vector3f(0, 500, 1), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
+	//load textures
+	//watertexture.loadTextures("water_pic.jpg", GL_TEXTURE_2D);
+	//watertexture.loadTextures("water2.jpg", GL_TEXTURE_2D);
+	watertexture.loadTextures("clear-ocean-water-texture.jpg", GL_TEXTURE_2D);
+	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
+	floortexture.loadTextures("floor_tile.jpg", GL_TEXTURE_2D);
+	//floortexture.bindToTextureUnit(GL_TEXTURE0);
 
 err:
 	return 0;
@@ -286,7 +307,8 @@ void Solution::setSolution(Solution* _sol)
 int Solution::render()
 {
 	//shader use code
-	
+	time++;		// increament the time
+
 	Vector3f viewerPosition;
 	Vector3f lookAtPoint;
 	Vector3f upVector;;
@@ -299,36 +321,67 @@ int Solution::render()
 	if (!plotWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
-
-	// use the phong's shader program shader
+	// ------------------------RENDER THE WATER--------------------
 	glUseProgram(waterShaderProgId);
 
-	// get the camera matrix from the camera
+	
+	// set the view matrix
 	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
-
-	// transfer the martix to the phongShader
-	// get the location of the matrix
-
 	waterShader.copyMatrixToShader(viewMat, "view");
 	assert(location != -1);
 	if (location == -1) return (-1);
 
 
+	// set the projection matrix
+	projMat = cam.getProjectionMatrix(NULL);
+	waterShader.copyMatrixToShader(projMat, "projection");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	waterShader.copyIntVectorToShader(&time, 1, 1, "time");
+
+
+	// render the objects
+
+	//floortexture.bindToTextureUnit(GL_TEXTURE0);
+	watertexture.bindToTextureUnit(GL_TEXTURE1);
+	
+	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
+	watertexture.setTextureSampler(waterShader, "texSampler1", 1);
+	waterfloor.render(waterShader);
+	//printf("%s", "helloagain\n");
+
+
+	// ------------------------RENDER THE FLOOR--------------------
+	glUseProgram(floorShaderProgId);
+
+
+	// set the view matrix
+	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
+	floorShader.copyMatrixToShader(viewMat, "view");
+	assert(location != -1);
+	if (location == -1) return (-1);
 
 
 	// set the projection matrix
 	projMat = cam.getProjectionMatrix(NULL);
-	// transfer the martix to the phongShader
-	// get the location of the matrix
-	waterShader.copyMatrixToShader(projMat, "projection");
-
+	floorShader.copyMatrixToShader(projMat, "projection");
 	assert(location != -1);
 	if (location == -1) return (-1);
-	//printf("%s", "break2ffff \n");
+
+
+	floorShader.copyIntVectorToShader(&time, 1, 1, "time");
+
 
 	// render the objects
-	//waterfloor.render(Matrix4f::identity());
-	waterfloor.render(waterShader);
+
+	//floortexture.bindToTextureUnit(GL_TEXTURE0);
+	floortexture.bindToTextureUnit(GL_TEXTURE2);
+
+	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
+	floortexture.setTextureSampler(floorShader, "texSampler1", 2);
+	floor.render(floorShader);
 	//house.render(Matrix4f::identity());
 	glutSwapBuffers();
 	return 0; 
@@ -662,7 +715,7 @@ int Solution::printOpenGLError(int errorCode)
 {
 	switch (errorCode) {
 	case GL_INVALID_VALUE:
-		printf("GL_INVALID_VALUE is generated if program is not a value generated by OpenGL.\n");
+		printf("GL_INVALID_VALUE is generated if program is not a value generated by OpenGL3.\n");
 		break;
 	case GL_INVALID_OPERATION:
 		printf("GL_INVALID_OPERATION is generated if program is not a program object. or \n");
@@ -687,7 +740,7 @@ int Solution::clearGLError()
 		if (rc != GL_NO_ERROR) {
 			switch (rc) {
 			case GL_INVALID_VALUE:
-				printf("GL_INVALID_VALUE is generated if program is not a value generated by OpenGL.\n");
+				printf("GL_INVALID_VALUE is generated if program is not a value generated by OpenGL2.\n");
 				break;
 			case GL_INVALID_OPERATION:
 				printf("GL_INVALID_OPERATION is generated if program is not a program object. or \n");

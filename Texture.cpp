@@ -29,7 +29,7 @@ Texture::~Texture()
 //  load a texture
 
 
-void Texture::loadTextures(char* imageFileName, GLuint texTarget)
+void Texture::loadTextures(const char* imageFileName, GLuint texTarget)
 {
 
 	int width, height;
@@ -38,7 +38,10 @@ void Texture::loadTextures(char* imageFileName, GLuint texTarget)
 	GLenum pixelFormat = 0;
 	// generate the texture
 	glGenTextures(1, &texId);
-	//glBindTexture(GL_TEXTURE_2D, texId);
+	printf("%s\n", imageFileName);
+	printf("%s , %d\n", "TEXID = ", texId);
+
+	glBindTexture(GL_TEXTURE_2D, texId);
 	//printf("%s , %d", "numChannels1 = ", numChannels);
 
 	// load the image 
@@ -46,7 +49,7 @@ void Texture::loadTextures(char* imageFileName, GLuint texTarget)
 	if (numChannels == 1) pixelFormat = GL_RED;
 	else if (numChannels == 3) pixelFormat = GL_RGB;
 	if (numChannels == 4) pixelFormat = GL_RGBA;
-	printf("%s  %d", "numChannels = ", numChannels);
+	//printf("%s  %d", "numChannels = ", numChannels);
 	//Transfer the image data to openGL
 	glTexImage2D(GL_TEXTURE_2D, 0, pixelFormat, width, height, 0, pixelFormat, GL_UNSIGNED_BYTE, image);
 	stbi_image_free(image);
@@ -70,7 +73,7 @@ void Texture::bindToTextureUnit(int textureUnit)
 	// set the active texture (the picture frame)
 	glActiveTexture(textureUnit);
 	// bind the texture to it using the texId
-	glBindTexture(textureUnit, texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
 	// keep the texture unit internally
 	this->textureUnit = textureUnit;
 }
@@ -86,12 +89,13 @@ GLuint Texture::getTexId()
 
 // the sampler id should correspond to the textureUnit
 
-GLuint Texture::setTextureSampler(Shader shader, char* samplerName, GLuint samplerId)
+GLuint Texture::setTextureSampler(Shader shader, const char* samplerName, GLuint samplerId)
 {
 	int location = 0;
 	int rc = 0;
 	//get the location of the sampler2D in the fragment shader
 	location = glGetUniformLocation(shader.getProgId(), samplerName);
+	
 
 	if (location == -1) {
 		rc = -1;

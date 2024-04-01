@@ -132,10 +132,17 @@ public:
 
 private:
 	static Solution* sol;
-	Shader waterShader;
-	int waterShaderProgId;
 	Water waterfloor;
+	Shader waterShader;
 	Texture watertexture;
+	int waterShaderProgId;
+	
+	Water floor;
+	Shader floorShader;
+	Texture floortexture;
+	int floorShaderProgId;
+	int time;
+
 	
 
 	Camera cam;
