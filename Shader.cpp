@@ -29,13 +29,12 @@
 // The code is provided as is without any warranty
 
 //=============================================================================
-
+#pragma warning(disable:4996)
 
 
 #include "stdio.h"
 #include "stdlib.h"
 #include "Shader.h"
-
 
 #define NUSS_DEBUG 0
 /******************************************************************************/
