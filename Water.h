@@ -51,6 +51,8 @@ public:
 	~Water();
 	static int createSurface(int numRows, int numCols, Vertices& vtx, Indices& ind);
 	static int createSurface(int numRows, int numCols, float u0, float u1, float v0, float v1, Vertices& vtx, Indices& ind);
+	static int createSphere(int numLong, int numLat, Vertices& vtx, Indices& ind);
+	int createGeom(int numLongs, int numLat);
 	int render(Shader shader);
 
 private:

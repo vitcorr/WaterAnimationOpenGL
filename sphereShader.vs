@@ -7,7 +7,7 @@ uniform int time;// Time variable for animation
 
 
 in vec4 vtxPos;
-//in vec4 vtxCol;
+in vec4 vtxCol;
 //in vec3 vtxNormal;
 in vec2 vtxCoord;
 
@@ -31,7 +31,7 @@ void main()
 	frag.texCoord = vtxCoord;
 
 	gl_Position = projection * view * gl_Position;	// vertex transformation
-	//frag.colour = vtxCol;
+	frag.colour = vtxCol;
 }
 
 

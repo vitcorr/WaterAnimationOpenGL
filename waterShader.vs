@@ -41,11 +41,6 @@ vec3 distort(vec3 v){
 void main()
 
 {
-	// transform the vertex position
-	//int height = 1;
-	//vec3 currentVertex = vec3(vtxPos.x, height, vtxPos.z);
-	
-	//currentVertex = distort(currentVertex);
 
 
 	float waveHeight = sin((vtxPos.x * 25.0 + 0.05*time)) * 5.0; // Adjust frequency and amplitude as needed
@@ -54,15 +49,9 @@ void main()
     vec3 displacedPosition = vec3(vtxPos.x,vtxPos.y,vtxPos.z) + vec3(0.0, waveHeight, 0.0);
 
 	gl_Position = projection * view * model * vec4(displacedPosition, 1.0);	// vertex transformation
-
-	//gl_Position = model * vtxPos;
 	
 	frag.texCoord = vtxCoord;
 
-	//vec3 p = vec3(0.0, 1.0, 0.0);
-
-	//gl_Position = projection * view * gl_Position;	// vertex transformation
-	//gl_Position = vec4(currentVertex,1.0) * gl_Position;
 	frag.colour = vtxCol;
 }
 

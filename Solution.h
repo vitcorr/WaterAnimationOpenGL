@@ -120,7 +120,7 @@ public:
 	static void winResizeCB(int width, int height);
 	static void timerCB(int operation);
 	static void menuFunCB(int num);
-
+	static void mouseCB(int button, int state, int mousex, int mousey);
 	static void setSolution(Solution* _sol);
 
 	// generaL shader that will be used by all objects
@@ -141,6 +141,12 @@ private:
 	Shader floorShader;
 	Texture floortexture;
 	int floorShaderProgId;
+
+	Water sphere;
+	Shader sphereShader;
+	Texture spheretexture;
+	int sphereShaderProgId;
+
 	int time;
 
 	
@@ -166,7 +172,7 @@ private:
 	void keyboard(unsigned char key, int x, int y);
 
 	void passiveMouse(int x, int y);
-
+	void mouseclicks(int button, int state, int mousex, int mousey);
 	void specialKeyboard(int key, int x, int y);
 	void winResize(int width, int height);
 	int timer(int operation);

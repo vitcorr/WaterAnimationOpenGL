@@ -109,7 +109,7 @@ int Solution::initOpenGL(int argc, char** argv, int posX, int posY, int winWidth
 	glutSpecialFunc(Solution::specialKeyboardCB);
 	glutPassiveMotionFunc(Solution::passiveMouseCB);
 	glutTimerFunc(FRAME_TIME, Solution::timerCB, UPDATE_RENDERRED_OBJECTS);
-
+	glutMouseFunc(Solution::mouseCB);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// create a menu
@@ -232,9 +232,13 @@ int Solution::initSolution()
 
 	Vertices floorvtx;
 	Indices floorind;
+
+	Vertices spherevtx;
+	Indices sphereind;
 	
 	waterfloor.createSurface(50, 50, 0, 1, 0, 1, vtx, ind);
 	floor.createSurface(10, 10, 0, 5, 0, 10, floorvtx, floorind);
+	Water::createSphere(10, 10, spherevtx, sphereind);
 	//model to model
 	
 
@@ -272,19 +276,35 @@ int Solution::initSolution()
 	//model to world
 	floor.setWorldPosition(Vector3f(0, 0, 0));
 
+	// create the SPHERE shader object
+	rc = sphereShader.createShaderProgram("sphereShader.vs", "sphereShader.fs");
+	if (rc != 0) {
+		fprintf(stderr, "Error in generating shader (solution)\n");
+		rc = -1;
+		goto err;
+	}
+	checkGLError();
+	sphereShaderProgId = sphereShader.getProgId();
+	//sphere setup
+	sphere.createVAO(sphereShader, spherevtx, sphereind);
+	sphere.setModelScale(20, 20, 20);
+	sphere.setWorldRotations(1, 1, 1);
+	sphere.setWorldPosition(Vector3f(-200, 0, -17));
 	checkGLError(); 
 	// set the camera initial position
 	//cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
 	cam.setCamera(Vector3f(0, 500, 1), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	//load textures
-	//watertexture.loadTextures("water_pic.jpg", GL_TEXTURE_2D);
+	watertexture.loadTextures("water_pic.jpg", GL_TEXTURE_2D);
 	//watertexture.loadTextures("water2.jpg", GL_TEXTURE_2D);
-	watertexture.loadTextures("clear-ocean-water-texture.jpg", GL_TEXTURE_2D);
+	//watertexture.loadTextures("clear-ocean-water-texture.jpg", GL_TEXTURE_2D);
 	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	floortexture.loadTextures("floor_tile.jpg", GL_TEXTURE_2D);
-	//floortexture.bindToTextureUnit(GL_TEXTURE0);
+	spheretexture.loadTextures("BeachBallTexture2.jpg", GL_TEXTURE_2D);
 
+	//floortexture.bindToTextureUnit(GL_TEXTURE0);
+	factor = 1;
 err:
 	return 0;
 }
@@ -350,8 +370,7 @@ int Solution::render()
 	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	watertexture.setTextureSampler(waterShader, "texSampler1", 1);
 	waterfloor.render(waterShader);
-	//printf("%s", "helloagain\n");
-
+	
 
 	// ------------------------RENDER THE FLOOR--------------------
 	glUseProgram(floorShaderProgId);
@@ -382,6 +401,36 @@ int Solution::render()
 	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	floortexture.setTextureSampler(floorShader, "texSampler1", 2);
 	floor.render(floorShader);
+
+	// ------------------------RENDER THE SPHERE--------------------
+	glUseProgram(sphereShaderProgId);
+
+
+	// set the view matrix
+	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
+	sphereShader.copyMatrixToShader(viewMat, "view");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	// set the projection matrix
+	projMat = cam.getProjectionMatrix(NULL);
+	sphereShader.copyMatrixToShader(projMat, "projection");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	sphereShader.copyIntVectorToShader(&time, 1, 1, "time");
+
+
+	// render the objects
+
+	//floortexture.bindToTextureUnit(GL_TEXTURE0);
+	spheretexture.bindToTextureUnit(GL_TEXTURE3);
+
+	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
+	spheretexture.setTextureSampler(sphereShader, "texSampler1", 3);
+	sphere.render(sphereShader);
 	//house.render(Matrix4f::identity());
 	glutSwapBuffers();
 	return 0; 
@@ -435,12 +484,88 @@ int Solution::render()
 
 // passive motion function. 
 
+int mouse = 0;
+int prev = 0;
+int prevy = 0;
+
+
+void Solution::mouseCB(int button, int state, int mousex, int mousey) {
+	sol->mouseclicks(button,  state,  mousex,  mousey);
+
+}
+
+void Solution::mouseclicks(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		if (mouse == 1) {
+			mouse = 0;
+		}
+		else if(mouse==0){
+			mouse = 1;
+		}
+	}
+	/*if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		if (prev > x) {
+			waterfloor.incrementWorldRotations(0, 0, 0.005);
+			floor.incrementWorldRotations(0, 0, 0.005);
+
+		}
+		if (prev < x) {
+			waterfloor.incrementWorldRotations(0, 0, -0.005);
+			floor.incrementWorldRotations(0, 0, -0.005);
+		}
+		if (prevy > y) {
+			waterfloor.incrementWorldRotations(0, 0.005, 0);
+			floor.incrementWorldRotations(0, 0.005, 0);
+		}
+		if (prevy < y) {
+			waterfloor.incrementWorldRotations(0, -0.005, 0);
+			floor.incrementWorldRotations(0, -0.005, 0);
+		}
+		prev = x;
+		prevy = y;
+
+	}
+	printf("x =%d, y = %d \n", x, y);*/
+}
 
 void Solution::passiveMouse(int x, int y)
-
 {
 	int winid = glutGetWindow();
+	
+
 	//std::cout << "Passive Mouse winId=" << winid << "(" << x << " , " << y << ")" << std::endl;
+	if (mouse == 1) {
+		if (prev > x) {
+			waterfloor.incrementWorldRotations(0, 0, 0.01);
+			floor.incrementWorldRotations(0, 0, 0.01);
+			sphere.incrementWorldRotations(0, 0, 0.01);
+
+
+		}
+		if(prev < x) {
+			waterfloor.incrementWorldRotations(0, 0, -0.01);
+			floor.incrementWorldRotations(0, 0, -0.01);
+			sphere.incrementWorldRotations(0, 0, -0.01);
+
+		}
+		if (prevy > y) {
+			waterfloor.incrementWorldRotations(0, -0.01, 0);
+			floor.incrementWorldRotations(0, -0.01, 0);
+			sphere.incrementWorldRotations(0, -0.01, 0);
+
+		}
+		if (prevy < y) {
+			waterfloor.incrementWorldRotations(0, 0.01, 0);
+			floor.incrementWorldRotations(0, 0.01, 0);
+			sphere.incrementWorldRotations(0, 0.01, 0);
+
+		}
+		prev=x;
+		prevy = y;
+
+	}
+	printf("x =%d, y = %d \n", x, y);
+
 }
 
 /************************************************************/
@@ -520,11 +645,11 @@ void Solution::keyboard(unsigned char key, int x, int y)
 	case 'r':
 		plotCorrect = plotCorrect ? 0 : 1;
 		break;
-	case 'H':
-		blinn = 1;
+	case '.':
+		mouse = 1;
 		break;
-	case 'h':
-		blinn = 0;
+	case ',':
+		mouse = 0;
 		break;
 	}
 

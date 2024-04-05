@@ -317,7 +317,88 @@ int Water::render(Shader shader)
 	return 0;
 }
 
+int Water::createSphere(int numLong, int numLat, Vertices& vtx, Indices& ind)
 
+{
+	int i, j, k;
+	int numRows;
+	int numCols;
+	int numVtx;
+	int numTriangles;
+	Vector4f pos;
+	Vector4f col;
+	float alpha;
+	float beta;
+	float deltaAlpha;
+	float deltaBeta;
+	Vector2f texCoord;
+
+	numRows = numLat * 2;  // number of horizonal slabs
+	numCols = numLong;	// number of vertical slabs
+
+	numVtx = (numRows + 1) * (numCols + 1);
+	vtx.resize(0);
+	cout << "   the vector's size is: " << vtx.size() << endl;
+	cout << "   the vector's capacity is: " << vtx.capacity() << endl;
+	cout << "   the vector's maximum size is: " << vtx.max_size() << endl;
+
+
+	numTriangles = numRows * numCols * 2;
+	ind.resize(0);
+
+	// Fill the vertex buffer with positions
+	k = 0;
+	alpha = 0.0f;  // angle of latitude starting from the "south pole"
+	deltaAlpha = (float)90.0 / numLat; // increment of alpha
+	beta = 0;   // angle of the longtidute 
+	deltaBeta = (float)360.0 / (numLong);	// increment of beta
+
+	for (i = 0, alpha = -90; i <= numRows; i++, alpha += deltaAlpha) {
+		for (j = 0, beta = 0; j <= numCols; j++, beta += deltaBeta) {
+			pos.x = cos(DegreeToRadians(alpha)) * cos(DegreeToRadians(beta));
+			pos.z = cos(DegreeToRadians(alpha)) * sin(DegreeToRadians(beta));
+			pos.y = sin(DegreeToRadians(alpha));
+			pos.w = 1.0;
+
+			col = pos;
+			col.x = fabs(col.x); col.y = fabs(col.y); col.z = fabs(col.z);
+			col.x = 1; col.y = 0.0; col.z = 0;
+			//vtx[k] = Vertex(pos, pos);
+
+			// Calculate texture coordinates
+			texCoord.x = (float)j / numCols; // Horizontal texture coordinate
+			texCoord.y = (float)i / numRows; // Vertical texture coordinate
+
+			vtx.push_back(Vertex(pos, Vector3f(pos.x, pos.y, pos.z), col, texCoord));
+			//vtx.push_back(Vertex(pos, Vector3f(pos.x, pos.y, pos.z), col));
+
+		}
+	}
+
+
+
+
+	// fill the index buffer
+
+	k = 0;
+	for (i = 0; i < numRows; i++) {
+		for (j = 0; j < numCols; j++) {
+			// fill indices for the quad
+			// change by making a quad function
+			ind.push_back(i * (numCols + 1) + j);
+			ind.push_back(i * (numCols + 1) + j + 1);
+			ind.push_back((i + 1) * (numCols + 1) + j + 1);
+
+			ind.push_back(i * (numCols + 1) + j);
+			ind.push_back((i + 1) * (numCols + 1) + j + 1);
+			ind.push_back((i + 1) * (numCols + 1) + j);
+		}
+	}
+
+
+	return(0);
+
+}
 
 
 
