@@ -531,8 +531,6 @@ void Solution::mouseclicks(int button, int state, int x, int y) {
 void Solution::passiveMouse(int x, int y)
 {
 	int winid = glutGetWindow();
-	
-
 	//std::cout << "Passive Mouse winId=" << winid << "(" << x << " , " << y << ")" << std::endl;
 	if (mouse == 1) {
 		if (prev > x) {
