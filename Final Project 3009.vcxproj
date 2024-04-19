@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(GL_Shared_Location)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(GL_Shared_Location)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(GL_Shared_Location)\include;$(WindowsSDK_IncludePath);$(VC_IncludePath)</IncludePath>
+    <LibraryPath>$(GL_Shared_Location)\lib\$(PlatformName);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -146,6 +146,7 @@
     <ClCompile Include="Final Project 3009.cpp" />
     <ClCompile Include="graphicsObject.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Solution.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="graphicsObject.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Solution.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />

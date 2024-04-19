@@ -96,7 +96,7 @@ int Solution::initOpenGL(int argc, char** argv, int posX, int posY, int winWidth
 	checkGLError();
 
 	//	glutSetWindow(winid1);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
@@ -235,10 +235,22 @@ int Solution::initSolution()
 
 	Vertices spherevtx;
 	Indices sphereind;
+
+	Vertices polevtx;
+	Indices poleind;
 	
+	const char* sbTextureNameSunnyDay[6] = {
+		"TropicalSunnyDayLeft2048.png",
+		"TropicalSunnyDayRight2048.png",
+		"TropicalSunnyDayUp2048.png",
+		"grasstext.png",
+		"TropicalSunnyDayFront2048.png",
+		"grasstext.png" };
+
 	waterfloor.createSurface(50, 50, 0, 1, 0, 1, vtx, ind);
 	floor.createSurface(10, 10, 0, 5, 0, 10, floorvtx, floorind);
 	Water::createSphere(10, 10, spherevtx, sphereind);
+	pole.init3dgeom(polevtx, poleind);
 	//model to model
 	
 
@@ -257,7 +269,7 @@ int Solution::initSolution()
 	waterfloor.createVAO(waterShader, vtx, ind);
 	waterfloor.setModelScale(150, 1, 150);
 	waterfloor.setWorldRotations(0, 90, 45);
-	waterfloor.setWorldPosition(Vector3f(0, 0, -10));//model to world
+	waterfloor.setWorldPosition(Vector3f(0, 0, 5));//model to world
 
 	// create the FLOOR shader object
 	rc = floorShader.createShaderProgram("floorShader.vs", "floorShader.fs");
@@ -271,7 +283,7 @@ int Solution::initSolution()
 
 	// create the floor VAO  using geometryObject createVAO(shaderProgId,...)
 	floor.createVAO(floorShader, floorvtx, floorind);
-	floor.setModelScale(300, 1, 300);
+	floor.setModelScale(200, 200, 200);
 	floor.setWorldRotations(0, 90, 45);
 	//model to world
 	floor.setWorldPosition(Vector3f(0, 0, 0));
@@ -289,7 +301,24 @@ int Solution::initSolution()
 	sphere.createVAO(sphereShader, spherevtx, sphereind);
 	sphere.setModelScale(20, 20, 20);
 	sphere.setWorldRotations(1, 1, 1);
-	sphere.setWorldPosition(Vector3f(-200, 0, -17));
+	sphere.setModelPosition(Vector3f(-200, 0, -17));
+
+	// create the POLE shader object
+	rc = poleShader.createShaderProgram("poleShader.vs", "poleShader.fs");
+	if (rc != 0) {
+		fprintf(stderr, "Error in generating shader (solution)\n");
+		rc = -1;
+		goto err;
+	}
+	checkGLError();
+	poleShaderProgId = poleShader.getProgId();
+
+	// create the floor VAO  using geometryObject createVAO(shaderProgId,...)
+	pole.createVAO(poleShader, polevtx, poleind);
+	pole.setModelScale(5, 5, 5);
+	pole.setWorldRotations(0, 90, 45);
+	//model to world
+	pole.setModelPosition(Vector3f(0, 0, -200));
 	checkGLError(); 
 	// set the camera initial position
 	//cam.setCamera(Vector3f(15, 15, 70), Vector3f(15, 0, 0), Vector3f(0, 1, 0));
@@ -300,11 +329,38 @@ int Solution::initSolution()
 	//watertexture.loadTextures("water2.jpg", GL_TEXTURE_2D);
 	//watertexture.loadTextures("clear-ocean-water-texture.jpg", GL_TEXTURE_2D);
 	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
+	//floortexture.loadTextures("grasstext.png", GL_TEXTURE_2D);
 	floortexture.loadTextures("floor_tile.jpg", GL_TEXTURE_2D);
+
 	spheretexture.loadTextures("BeachBallTexture2.jpg", GL_TEXTURE_2D);
 
+
+	//skybox inits
+	
+	/*skybox.init("skybox.vs", "skybox.fs");
+	skybox.loadColourTexture();
+	skybox.loadTextureImages(sbTextureNameSunnyDay);*/
 	//floortexture.bindToTextureUnit(GL_TEXTURE0);
-	factor = 1;
+	//setthe point light using the pointLight structure
+	pointLight.ambientIntensity = Vector3f(0.5, 0.5, 0.5);
+	pointLight.lightIntensity = Vector3f(2, 2, 2);
+	pointLight.specularPower = 40;
+	pointLight.worldPos = Vector3f(0, 0, -100);
+
+
+	// load the flags for showing hte components
+	includeAmbient = 1;
+	includeDiffuse = 1;
+	includeSpecular = 1;
+	includeObjColour = 1;
+
+	lightType = POINT_LIGHT;
+
+	factor = 1;		// motion and specular factor
+
+	includeSpecular = includeObjColour = 1;
+	plotWireFrame = 0;
+
 err:
 	return 0;
 }
@@ -335,12 +391,18 @@ int Solution::render()
 	Matrix4f viewMat, projMat;
 	int location = 0;
 
+	/*
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTexHandle());*/
+	
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (!plotWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
+	/*skybox.render(cam);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTexHandle());*/
 	// ------------------------RENDER THE WATER--------------------
 	glUseProgram(waterShaderProgId);
 
@@ -361,16 +423,124 @@ int Solution::render()
 
 	waterShader.copyIntVectorToShader(&time, 1, 1, "time");
 
-
+	//  load the light data
+	loadLights(waterShader);
+	viewerPosition = cam.getPosition();
+	// get the location of viewerPosition
+	location = glGetUniformLocation(waterShaderProgId, "gEyeWorldPos");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&viewerPosition);
+	Solution::clearGLError();
 	// render the objects
 
 	//floortexture.bindToTextureUnit(GL_TEXTURE0);
 	watertexture.bindToTextureUnit(GL_TEXTURE1);
-	
-	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	watertexture.setTextureSampler(waterShader, "texSampler1", 1);
 	waterfloor.render(waterShader);
 	
+
+	
+
+	// ------------------------RENDER THE SPHERE--------------------
+	glUseProgram(sphereShaderProgId);
+
+
+	// set the view matrix
+	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
+	sphereShader.copyMatrixToShader(viewMat, "view");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	// set the projection matrix
+	projMat = cam.getProjectionMatrix(NULL);
+	sphereShader.copyMatrixToShader(projMat, "projection");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	sphereShader.copyIntVectorToShader(&time, 1, 1, "time");
+	spheretexture.bindToTextureUnit(GL_TEXTURE3);
+	spheretexture.setTextureSampler(sphereShader, "texSampler1", 3);
+	sphere.render(sphereShader);
+
+
+	// ------------------------RENDER THE POLE--------------------
+	glUseProgram(poleShaderProgId);
+
+
+	// set the view matrix
+	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
+	poleShader.copyMatrixToShader(viewMat, "view");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	// set the projection matrix
+	projMat = cam.getProjectionMatrix(NULL);
+	poleShader.copyMatrixToShader(projMat, "projection");
+	assert(location != -1);
+	if (location == -1) return (-1);
+
+
+	poleShader.copyIntVectorToShader(&time, 1, 1, "time");
+
+
+	// render the objects
+	//  load the light data
+	// load the ambient light
+	location = glGetUniformLocation(poleShaderProgId, "gPointLight.ambientIntensity");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&pointLight.ambientIntensity);
+
+	Solution::clearGLError();
+	// load the light intensity using "gPointLight.lightIntensity" as the name
+	location = glGetUniformLocation(poleShaderProgId, "gPointLight.lightIntensity");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&pointLight.lightIntensity);
+
+	Solution::clearGLError();
+
+
+	// load the specular light
+	location = glGetUniformLocation(poleShaderProgId, "gPointLight.specularPower");
+	if (location == -1) return (-1);
+	glUniform1fv(location, 1, &pointLight.specularPower);
+	Solution::clearGLError();
+
+
+	// load the light position 
+	location = glGetUniformLocation(poleShaderProgId, "gPointLight.worldPos");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&pointLight.worldPos);
+	Solution::clearGLError();
+
+
+	// load the viewer position
+	// get the viewerposition from the camera
+	viewerPosition = cam.getPosition();
+
+	// get the location of viewerPosition
+	location = glGetUniformLocation(poleShaderProgId, "gEyeWorldPos");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&viewerPosition);
+	// // transfer the viewer position to the sh ader program
+	// 
+	Solution::clearGLError();
+
+
+
+	// load the flags for showing hte components
+	includeAmbient = 1;
+	includeDiffuse = 1;
+	includeSpecular = 1;
+	includeObjColour = 1;
+	poleShader.copyIntVectorToShader(&includeAmbient, 1, 1, "includeAmbient");
+	poleShader.copyIntVectorToShader(&includeDiffuse, 1, 1, "includeDiffuse");
+	poleShader.copyIntVectorToShader(&includeSpecular, 1, 1, "includeSpecular");
+	poleShader.copyIntVectorToShader(&includeObjColour, 1, 1, "includeObjColour");
+	
+	pole.render(poleShader);
 
 	// ------------------------RENDER THE FLOOR--------------------
 	glUseProgram(floorShaderProgId);
@@ -392,91 +562,24 @@ int Solution::render()
 
 	floorShader.copyIntVectorToShader(&time, 1, 1, "time");
 
-
 	// render the objects
 
 	//floortexture.bindToTextureUnit(GL_TEXTURE0);
 	floortexture.bindToTextureUnit(GL_TEXTURE2);
-
-	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	floortexture.setTextureSampler(floorShader, "texSampler1", 2);
+	floortexture.setTextureSampler(floorShader, "texSampler2", 4);
+
+	//  load the light data
+	loadLights(floorShader);
+	viewerPosition = cam.getPosition();
+	// get the location of viewerPosition
+	location = glGetUniformLocation(floorShaderProgId, "gEyeWorldPos");
+	if (location == -1) return (-1);
+	glUniform3fv(location, 1, (float*)&viewerPosition);
+	Solution::clearGLError();
 	floor.render(floorShader);
-
-	// ------------------------RENDER THE SPHERE--------------------
-	glUseProgram(sphereShaderProgId);
-
-
-	// set the view matrix
-	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
-	sphereShader.copyMatrixToShader(viewMat, "view");
-	assert(location != -1);
-	if (location == -1) return (-1);
-
-
-	// set the projection matrix
-	projMat = cam.getProjectionMatrix(NULL);
-	sphereShader.copyMatrixToShader(projMat, "projection");
-	assert(location != -1);
-	if (location == -1) return (-1);
-
-
-	sphereShader.copyIntVectorToShader(&time, 1, 1, "time");
-
-
-	// render the objects
-
-	//floortexture.bindToTextureUnit(GL_TEXTURE0);
-	spheretexture.bindToTextureUnit(GL_TEXTURE3);
-
-	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
-	spheretexture.setTextureSampler(sphereShader, "texSampler1", 3);
-	sphere.render(sphereShader);
-	//house.render(Matrix4f::identity());
 	glutSwapBuffers();
 	return 0; 
-
-	//My old working render
-	/*
-	Vector3f viewerPosition;
-	Vector3f lookAtPoint;
-	Vector3f upVector;;
-	Matrix4f viewMat, projMat;
-
-
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_CULL_FACE);
-
-
-	glViewport(0, 0, (GLsizei)winWidth, (GLsizei)winHeight);
-
-	// set the view model transformation
-	glMatrixMode(GL_MODELVIEW);
-	viewMat = cam.getViewMatrix(NULL);	// get the camera view transformation
-
-	// pass it to opengl before draw
-	viewMat = Matrix4f::transpose(viewMat);
-	//viewMat = Matrix4f::identity();
-	glLoadMatrixf((GLfloat*)viewMat.data());
-
-
-	// set the projection matrix
-	projMat = cam.getProjectionMatrix(NULL);
-
-	glMatrixMode(GL_PROJECTION);
-	// pass it to opengl - Note that OpenGL accepts the matrix in column major
-	projMat = Matrix4f::transpose(projMat);
-	glLoadMatrixf((GLfloat*)projMat.data());
-
-
-
-	// render the objects
-	waterfloor.render(Matrix4f::identity());
-	//house.render(Matrix4f::identity());
-	glutSwapBuffers();
-	return 0; */
 }
 
 
@@ -487,6 +590,7 @@ int Solution::render()
 int mouse = 0;
 int prev = 0;
 int prevy = 0;
+int mouseR = 0;
 
 
 void Solution::mouseCB(int button, int state, int mousex, int mousey) {
@@ -501,6 +605,14 @@ void Solution::mouseclicks(int button, int state, int x, int y) {
 		}
 		else if(mouse==0){
 			mouse = 1;
+		}
+	}
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+		if (mouseR == 1) {
+			mouseR = 0;
+		}
+		else if (mouseR == 0) {
+			mouseR = 1;
 		}
 	}
 	/*if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
@@ -537,6 +649,7 @@ void Solution::passiveMouse(int x, int y)
 			waterfloor.incrementWorldRotations(0, 0, 0.01);
 			floor.incrementWorldRotations(0, 0, 0.01);
 			sphere.incrementWorldRotations(0, 0, 0.01);
+			//pole.incrementWorldRotations(0, 0, 0.01);
 
 
 		}
@@ -544,25 +657,28 @@ void Solution::passiveMouse(int x, int y)
 			waterfloor.incrementWorldRotations(0, 0, -0.01);
 			floor.incrementWorldRotations(0, 0, -0.01);
 			sphere.incrementWorldRotations(0, 0, -0.01);
+			//pole.incrementWorldRotations(0, 0, -0.01);
 
 		}
 		if (prevy > y) {
 			waterfloor.incrementWorldRotations(0, -0.01, 0);
 			floor.incrementWorldRotations(0, -0.01, 0);
 			sphere.incrementWorldRotations(0, -0.01, 0);
+			//pole.incrementWorldRotations(0, -0.01, 0);
 
 		}
 		if (prevy < y) {
 			waterfloor.incrementWorldRotations(0, 0.01, 0);
 			floor.incrementWorldRotations(0, 0.01, 0);
 			sphere.incrementWorldRotations(0, 0.01, 0);
+			//pole.incrementWorldRotations(0, 0.01, 0);
 
 		}
 		prev=x;
 		prevy = y;
+		printf("x =%d, y = %d \n", x, y);
 
 	}
-	printf("x =%d, y = %d \n", x, y);
 
 }
 
@@ -668,16 +784,26 @@ void Solution::specialKeyboard(int key, int x, int y)
 		exit(1);
 		break;
 	case GLUT_KEY_LEFT:
-		cam.roll(1);
+		//cam.roll(1);
+		pole.incrementModelPosition(Vector3f(-5, 0, 0));
+		pointLight.worldPos = pointLight.worldPos + Vector3f(-5,0,0);
 		break;
 	case GLUT_KEY_UP:
-		cam.pitch(1.0);
+		pole.incrementModelPosition(Vector3f(0, -5, 0));
+		pointLight.worldPos = pointLight.worldPos + Vector3f(0, -5, 0);
+		//cam.pitch(1.0);
 		break;
 	case GLUT_KEY_RIGHT:
-		cam.roll(-1);
+		//cam.roll(-1);
+		pole.incrementModelPosition(Vector3f(5, 0, 0));
+		pointLight.worldPos = pointLight.worldPos + Vector3f(5, 0, 0);
+
 		break;
 	case GLUT_KEY_DOWN:
-		cam.pitch(-1);
+		pole.incrementModelPosition(Vector3f(0, 5, 0));
+		pointLight.worldPos = pointLight.worldPos + Vector3f(0, 5, 0);
+
+		//cam.pitch(-1);
 		break;
 	}
 }
@@ -811,21 +937,10 @@ int Solution::loadLights(Shader shader)
 	shader.copyFloatVectorToShader((float*)&pointLight.specularPower, 1, 1, "gPointLight.specularPower");
 
 
-
-	// load spot light
-	shader.copyFloatVectorToShader((float*)&spotLight.ambientIntensity, 1, 3, "gSpotLight.ambientIntensity");
-	shader.copyFloatVectorToShader((float*)&spotLight.lightIntensity, 1, 3, "gSpotLight.lightIntensity");
-	shader.copyFloatVectorToShader((float*)&spotLight.worldPos, 1, 3, "gSpotLight.worldPos");
-	shader.copyFloatVectorToShader((float*)&spotLight.lightDirection, 1, 3, "gSpotLight.lightDirection");
-	shader.copyFloatVectorToShader((float*)&spotLight.specularPower, 1, 1, "gSpotLight.specularPower");
-	//shader.copyFloatVectorToShader((float *)&spotLight.spotdDistLimit, 1, 1, "gSpotLight.spotDistLimit");
-	shader.copyFloatVectorToShader((float*)&spotLight.cosSpotAlpha, 1, 1, "gSpotLight.cosSpotAlpha");
-
-	// load directional light
-	shader.copyFloatVectorToShader((float*)&directionalLight.ambientIntensity, 1, 3, "gDirectionalLight.ambientIntensity");
-	shader.copyFloatVectorToShader((float*)&directionalLight.lightIntensity, 1, 3, "gDirectionalLight.lightIntensity");
-	shader.copyFloatVectorToShader((float*)&directionalLight.lightDirection, 1, 3, "gDirectionalLight.lightDirection");
-	shader.copyFloatVectorToShader((float*)&directionalLight.specularPower, 1, 1, "gDirectionalLight.specularPower");
+	shader.copyIntVectorToShader(&includeAmbient, 1, 1, "includeAmbient");
+	shader.copyIntVectorToShader(&includeDiffuse, 1, 1, "includeDiffuse");
+	shader.copyIntVectorToShader(&includeSpecular, 1, 1, "includeSpecular");
+	shader.copyIntVectorToShader(&includeObjColour, 1, 1, "includeObjColour");
 
 
 	return 0;

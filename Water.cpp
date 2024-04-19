@@ -294,7 +294,7 @@ int Water::render(Shader shader)
 
 
 	// set the translation - this is model space to world space transformation
-	transMat = Matrix4f::translation(worldPosition.x, worldPosition.y, worldPosition.z);
+	transMat = Matrix4f::translation(position.x, position.y, position.z);
 	modelMat = transMat * modelMat;
 
 	// move matrix to shader
@@ -304,6 +304,15 @@ int Water::render(Shader shader)
 	// bind the texture to it using the texId
 	//glBindTexture(GL_TEXTURE_2D, texId);
 	// keep the texture unit internally
+	/*if (shader.getProgId()==4)
+	{*/
+		materials.ambientMaterial = Vector3f(0.2, 0.2, 0.2);
+		materials.diffuseMaterial = Vector3f(0.75, 0.75, 0.75);
+		materials.specularMaterial = Vector3f(1, 1, 1);
+		loadMaterials(shader);
+
+	//}
+	
 
 	// bind the vao
 	glBindVertexArray(vao);
@@ -400,5 +409,46 @@ int Water::createSphere(int numLong, int numLat, Vertices& vtx, Indices& ind)
 
 }
 
+int Water::init3dgeom(Vertices& vtx, Indices& ind) {
+	vtx.resize(8);
+	// initial each vertex with a positin and colour
+	vtx[0] = Vertex(Vector4f(-1, -1, 1, 1), Vector3f(1, 0, 0), Vector4f(1, 0, 0, 1));
+	vtx[1] = Vertex(Vector4f(1, -1, 1, 1), Vector3f(1, 0, 0), Vector4f(0, 1, 0, 1));
+	vtx[2] = Vertex(Vector4f(1, 1, 1, 1), Vector3f(1, 0, 0), Vector4f(0, 0, 1, 1));
+	vtx[3] = Vertex(Vector4f(-1, 1, 1, 1), Vector3f(1, 0, 0), Vector4f(1, 1, 0, 1));
 
+	vtx[4] = Vertex(Vector4f(-1, -1, -1, 1), Vector3f(1, 0, 0), Vector4f(1, 0, 1, 1));
+	vtx[5] = Vertex(Vector4f(1, -1, -1, 1), Vector3f(1, 0, 0), Vector4f(0, 1, 1, 1));
+	vtx[6] = Vertex(Vector4f(1, 1, -1, 1), Vector3f(1, 0, 0), Vector4f(0.5, 0.5, 0, 1));
+	vtx[7] = Vertex(Vector4f(-1, 1, -1, 1), Vector3f(1, 0, 0), Vector4f(0.5, 0, 0.5, 1));
+
+	// set the colours
+
+
+	ind.resize(36);
+	int indices[] = {
+		// front face
+		0, 1, 2,
+		2, 3, 0,
+		// top face
+		3, 2, 6,
+		6, 7, 3,
+		// back face
+		7, 6, 5,
+		5, 4, 7,
+		// bottom face
+		4, 5, 1,
+		1, 0, 4,
+		// left face
+		4, 0, 3,
+		3, 7, 4,
+		// right face
+		1, 5, 6,
+		6, 2, 1
+	};
+
+
+	ind.assign(std::begin(indices), std::end(indices));
+	return 0;
+}
 

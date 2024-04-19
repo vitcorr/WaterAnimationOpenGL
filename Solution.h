@@ -48,6 +48,7 @@
 #include "Water.h"
 #include "camera.h"
 #include "Texture.h"
+#include "SkyBox.h"
 #include "GL/nuss_math.h"
 
 
@@ -146,6 +147,13 @@ private:
 	Shader sphereShader;
 	Texture spheretexture;
 	int sphereShaderProgId;
+
+	SkyBox skybox;
+
+	Water pole;
+	Shader poleShader;
+	int poleShaderProgId;
+
 
 	int time;
 
