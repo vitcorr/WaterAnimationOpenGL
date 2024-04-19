@@ -25,7 +25,7 @@ To experience the mesmerizing water animation, follow these simple steps:
 
 Feel free to explore and experiment with these controls to interact with the animation environment!
 ## Render Preview
-<img src="preview" alt="Pool Image" width="400">
+<img src="preview.png" alt="Pool Image" width="400">
 
 ---
 
