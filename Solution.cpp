@@ -92,7 +92,7 @@ int Solution::initOpenGL(int argc, char** argv, int posX, int posY, int winWidth
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(posX, posY);
 	glutInitWindowSize(winWidth, winHeight);
-	winid1 = glutCreateWindow("Drawing Basic Objects");
+	winid1 = glutCreateWindow("Water Pool Animation");
 	checkGLError();
 
 	//	glutSetWindow(winid1);
@@ -328,7 +328,6 @@ int Solution::initSolution()
 	watertexture.loadTextures("water_pic.jpg", GL_TEXTURE_2D);
 	//watertexture.loadTextures("water2.jpg", GL_TEXTURE_2D);
 	//watertexture.loadTextures("clear-ocean-water-texture.jpg", GL_TEXTURE_2D);
-	//ASK TA SKIP THUS---------------------------------------------------------------------------------------------------------
 	//floortexture.loadTextures("grasstext.png", GL_TEXTURE_2D);
 	floortexture.loadTextures("floor_tile.jpg", GL_TEXTURE_2D);
 
@@ -615,29 +614,8 @@ void Solution::mouseclicks(int button, int state, int x, int y) {
 			mouseR = 1;
 		}
 	}
-	/*if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		if (prev > x) {
-			waterfloor.incrementWorldRotations(0, 0, 0.005);
-			floor.incrementWorldRotations(0, 0, 0.005);
 
-		}
-		if (prev < x) {
-			waterfloor.incrementWorldRotations(0, 0, -0.005);
-			floor.incrementWorldRotations(0, 0, -0.005);
-		}
-		if (prevy > y) {
-			waterfloor.incrementWorldRotations(0, 0.005, 0);
-			floor.incrementWorldRotations(0, 0.005, 0);
-		}
-		if (prevy < y) {
-			waterfloor.incrementWorldRotations(0, -0.005, 0);
-			floor.incrementWorldRotations(0, -0.005, 0);
-		}
-		prev = x;
-		prevy = y;
-
-	}
-	printf("x =%d, y = %d \n", x, y);*/
+	//printf("x =%d, y = %d \n", x, y);
 }
 
 void Solution::passiveMouse(int x, int y)
